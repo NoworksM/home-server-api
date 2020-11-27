@@ -3,33 +3,33 @@ import ITokenPayload from "../models/ITokenPayload";
 import ErrorResponseViewModel from "../models/ErrorResponseViewModel";
 import cache from "../cache/SiteMemoryCache";
 
-async function userMiddleware(ctx: Context, next: Next): Promise<void> {
+async function sensorMiddleware(ctx: Context, next: Next): Promise<void> {
     if (ctx.request.method === "OPTIONS") {
         await next();
         return;
     }
 
-    if (!/^\/auth\/?/.test(ctx.request.path)) {
+    if (!/^\/sensor\/?/.test(ctx.request.path)) {
         const token: ITokenPayload | undefined = ctx.state.user;
 
-        if (!token || !token.userId) {
+        if (!token || !token.sensorId) {
             ctx.status = 401;
-            ctx.body = new ErrorResponseViewModel("User not signed in");
+            ctx.body = new ErrorResponseViewModel("Sensor not not authorized");
             return;
         }
 
         ctx.state.token = token;
 
-        const user = await cache.getUser(token.userId, true);
+        const sensor = await cache.getSensor(token.sensorId, true);
 
-        if (user) {
-            ctx.state.user = user;
+        if (sensor) {
+            ctx.state.sensor = sensor;
             await next();
         } else {
-            ctx.status = 401;
-            ctx.body = new ErrorResponseViewModel("User not signed in");
+            ctx.response.status = 401;
+            ctx.state.sensor = null;
         }
     }
 }
 
-export default userMiddleware;
+export default sensorMiddleware;

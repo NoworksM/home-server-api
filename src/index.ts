@@ -8,6 +8,7 @@ import convert from "koa-convert";
 import cors from "koa-cors";
 import userMiddleware from "./middleware/user";
 import config from "./config";
+import sensorMiddleware from "./middleware/sensor";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // noinspection JSUnusedLocalSymbols
@@ -37,6 +38,7 @@ createConnection().then(async conn => {
     _use(jwt({secret: config.security.jwtSecret, passthrough: true}).unless({path: [/^\/auth\/?/]}));
 
     _use(userMiddleware);
+    _use(sensorMiddleware);
 
     _use(authRouter.routes());
     _use(authRouter.allowedMethods());

@@ -1,3 +1,4 @@
 export default interface ITokenPayload {
-    userId: string;
+    userId?: string;
+    sensorId?: string;
 }
