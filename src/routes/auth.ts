@@ -1,26 +1,24 @@
 import Router from 'koa-router';
 import {ExtendableContext} from "koa";
 import LoginViewModel from "../models/auth/LoginViewModel";
-import assign from 'lodash/assign';
-import {validate} from "class-validator";
+import SensorAuthViewModel from "../models/auth/SensorAuthViewModel";
 import {getRepository} from "typeorm";
 import {User} from "../entity/User";
 import ErrorResponseViewModel from "../models/ErrorResponseViewModel";
-import {compare} from "../util/bcrypt";
+import * as bcrypt from "../util/bcrypt";
 import jwt from 'jsonwebtoken';
 import config from "../config";
+import validateViewModel from "../models/validateViewModel";
+import Sensor from "../entity/Sensor";
 
 
 const router = new Router({prefix: '/auth'});
 
 router.post('/', async (ctx: ExtendableContext) => {
-    const vm = new LoginViewModel();
-    assign(vm, ctx.request.body);
+    const vm = await validateViewModel(ctx.request.body, LoginViewModel);
 
-    const errors = await validate(vm);
-
-    if (errors.length > 0) {
-        ctx.body = new ErrorResponseViewModel('Invalid data', errors);
+    if (vm instanceof ErrorResponseViewModel) {
+        ctx.body = vm;
         return;
     }
 
@@ -33,7 +31,7 @@ router.post('/', async (ctx: ExtendableContext) => {
         return;
     }
 
-    const result = await compare(vm.password, user.passwordHash);
+    const result = await bcrypt.compare(vm.password, user.passwordHash);
 
     if (!result) {
         ctx.body = new ErrorResponseViewModel('Credentials did not match');
@@ -41,6 +39,36 @@ router.post('/', async (ctx: ExtendableContext) => {
     }
 
     const token = jwt.sign({userId: user.id}, config.security.jwtSecret);
+
+    ctx.body = {token};
+});
+
+router.post("/sensor", async (ctx: ExtendableContext) => {
+    const vm = await validateViewModel(ctx.request.body, SensorAuthViewModel);
+
+    if (vm instanceof ErrorResponseViewModel) {
+        ctx.body = vm;
+        return;
+    }
+
+    const sensorRepo = getRepository(Sensor);
+    const sensor = await sensorRepo.findOne({id: vm.sensorId});
+
+    if (!sensor) {
+        ctx.response.status = 400;
+        ctx.body = new ErrorResponseViewModel("Credentials did not match");
+        return;
+    }
+
+    const result = await bcrypt.compare(vm.secret, sensor.secretHash);
+
+    if (!result) {
+        ctx.response.status = 400;
+        ctx.body = new ErrorResponseViewModel("Credentials did not match");
+        return;
+    }
+
+    const token = jwt.sign({sensorId: sensor.id}, config.security.jwtSecret);
 
     ctx.body = {token};
 });
