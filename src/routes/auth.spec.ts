@@ -7,10 +7,13 @@ import {User} from "../entity/User";
 import * as bcrypt from "../util/bcrypt";
 import config from "../config";
 import Sensor from "../entity/Sensor";
+import jwt from "jsonwebtoken";
 
 let app: Server;
 let testUser = new User();
 let testSensor = new Sensor();
+let userToken: string;
+let sensorToken: string;
 const testUserPassword = "testpass";
 const testSensorSecret = "testsecret";
 
@@ -28,6 +31,8 @@ beforeAll(async () => {
 
     testUser = await userRepo.save(testUser);
 
+    userToken = jwt.sign({userId: testUser.id}, config.security.jwtSecret);
+
     const sensorRepo = await getRepository(Sensor);
 
     testSensor.name = "zxe_unit_test_sensor";
@@ -36,6 +41,8 @@ beforeAll(async () => {
     sensorRepo.delete({name: testSensor.name});
 
     testSensor = await sensorRepo.save(testSensor);
+
+    sensorToken = jwt.sign({sensorId: testSensor.id}, config.security.jwtSecret);
 });
 
 afterAll(async () => {
@@ -48,92 +55,134 @@ afterAll(async () => {
     await sensorRepo.delete({name: testSensor.name});
 
     app.close();
-})
-
-describe("login should generate appropriate responses", () => {
-    it("should reject non-existent users", (done) => {
-        const vm = {
-            email: "123njn5j452n6098g0fadshung9dafgu9afdgsjnagfdsoj@gmail.com",
-            password: "fdsajklnfdsanjkfdsakjln"
-        };
-
-        request(app)
-            .post("/auth")
-            .send(vm)
-            .expect(400)
-            .end(done);
-    });
-
-    it("should return a token on a successful login",  (done) => {
-        request(app)
-            .post("/auth")
-            .send({email: testUser.email, password: testUserPassword})
-            .set("Accept", "application/json")
-            .expect("Content-Type", /json/)
-            .expect(200)
-            .expect((res) => {
-                const resp = JSON.parse(res.text);
-                expect(resp).toHaveProperty("token");
-            })
-            .end(done);
-    });
-
-    it("should return 400 on an unsuccessful login",  (done) => {
-        request(app)
-            .post("/auth")
-            .send({email: testUser.email, password: "badpassword"})
-            .set("Accept", "application/json")
-            .expect("Content-Type", /json/)
-            .expect(400)
-            .expect((res) => {
-                const resp = JSON.parse(res.text);
-                expect(resp).toHaveProperty("message");
-                expect(resp.message).toBe("Credentials did not match");
-                expect(resp).toHaveProperty("validationErrors");
-                expect(resp.validationErrors).toHaveLength(0);
-            })
-            .end(done);
-    });
 });
 
-describe("sensor auth should generate appropriate responses", () => {
-    it("should reject non-existent users", (done) => {
+describe("/auth", () => {
 
-        request(app)
-            .post("/auth/sensor")
-            .send({sensorId: "sadfkjfdsalkbhjnadsfjklh", secret: "sfadgjkbdsafjhkgjhlkasfd"})
-            .expect(400)
-            .end(done);
+    describe("login should generate appropriate responses", () => {
+        it("should reject non-existent users", (done) => {
+            const vm = {
+                email: "123njn5j452n6098g0fadshung9dafgu9afdgsjnagfdsoj@gmail.com",
+                password: "fdsajklnfdsanjkfdsakjln"
+            };
+
+            request(app)
+                .post("/auth")
+                .send(vm)
+                .expect(400)
+                .end(done);
+        });
+
+        it("should return a token on a successful login", (done) => {
+            request(app)
+                .post("/auth")
+                .send({email: testUser.email, password: testUserPassword})
+                .set("Accept", "application/json")
+                .expect("Content-Type", /json/)
+                .expect(200)
+                .expect((res) => {
+                    const resp = JSON.parse(res.text);
+                    expect(resp).toHaveProperty("token");
+                })
+                .end(done);
+        });
+
+        it("should return 400 on an unsuccessful login", (done) => {
+            request(app)
+                .post("/auth")
+                .send({email: testUser.email, password: "badpassword"})
+                .set("Accept", "application/json")
+                .expect("Content-Type", /json/)
+                .expect(400)
+                .expect((res) => {
+                    const resp = JSON.parse(res.text);
+                    expect(resp).toHaveProperty("message");
+                    expect(resp.message).toBe("Credentials did not match");
+                    expect(resp).toHaveProperty("validationErrors");
+                    expect(resp.validationErrors).toHaveLength(0);
+                })
+                .end(done);
+        });
     });
 
-    it("should return a token on a successful sensor auth",  (done) => {
-        request(app)
-            .post("/auth/sensor")
-            .send({sensorId: testSensor.id, secret: testSensorSecret})
-            .set("Accept", "application/json")
-            .expect("Content-Type", /json/)
-            .expect(200)
-            .expect((res) => {
-                const resp = JSON.parse(res.text);
-                expect(resp).toHaveProperty("token");
-            })
-            .end(done);
+    describe("sensor auth should generate appropriate responses", () => {
+        it("should reject non-existent users", (done) => {
+
+            request(app)
+                .post("/auth/sensor")
+                .send({sensorId: "sadfkjfdsalkbhjnadsfjklh", secret: "sfadgjkbdsafjhkgjhlkasfd"})
+                .expect(400)
+                .end(done);
+        });
+
+        it("should return a token on a successful sensor auth", (done) => {
+            request(app)
+                .post("/auth/sensor")
+                .send({sensorId: testSensor.id, secret: testSensorSecret})
+                .set("Accept", "application/json")
+                .expect("Content-Type", /json/)
+                .expect(200)
+                .expect((res) => {
+                    const resp = JSON.parse(res.text);
+                    expect(resp).toHaveProperty("token");
+                })
+                .end(done);
+        });
+
+        it("should return 400 on an unsuccessful sensor auth", (done) => {
+            request(app)
+                .post("/auth/sensor")
+                .send({sensorId: testSensor.id, secret: "badsecret"})
+                .set("Accept", "application/json")
+                .expect("Content-Type", /json/)
+                .expect(400)
+                .expect((res) => {
+                    const resp = JSON.parse(res.text);
+                    expect(resp).toHaveProperty("message");
+                    expect(resp.message).toBe("Sensor credentials did not match");
+                    expect(resp).toHaveProperty("validationErrors");
+                    expect(resp.validationErrors).toHaveLength(0);
+                })
+                .end(done);
+        });
     });
 
-    it("should return 400 on an unsuccessful sensor auth",  (done) => {
-        request(app)
-            .post("/auth/sensor")
-            .send({sensorId: testSensor.id, secret: "badsecret"})
-            .set("Accept", "application/json")
-            .expect("Content-Type", /json/)
-            .expect(400)
-            .expect((res) => {
-                const resp = JSON.parse(res.text);
-                expect(resp).toHaveProperty("message");
-                expect(resp.message).toBe("Sensor credentials did not match");
-                expect(resp).toHaveProperty("validationErrors");
-                expect(resp.validationErrors).toHaveLength(0);
-            })
-            .end(done);
+});
+
+describe("/readings", () => {
+    describe("/", () => {
+
+        it("should now allow users to post", (done) => {
+            request(app)
+                .post("/readings")
+                .set("Accept", "application.json")
+                .set("Authorization", `Bearer: ${userToken}`)
+                .send({type: "Temperature", value: 73.2})
+                .expect("Content-Type", /json/)
+                .expect(401)
+                .end(done);
+        });
+
+        it("should allow sensors to post", (done) => {
+            request(app)
+                .post("/readings")
+                .set("Accept", "application.json")
+                .set("Authorization", `Bearer: ${sensorToken}`)
+                .send({type: "Temperature", value: 73.2})
+                .expect("Content-Type", /json/)
+                .expect(200)
+                .end(done);
+        });
+
+        it("should not create readings if the type doesn't exist", (done) => {
+            request(app)
+                .post("/readings")
+                .set("Accept", "application.json")
+                .set("Authorization", `Bearer: ${sensorToken}`)
+                .send({type: "Invalid Type that isn't in the database", value: 73.2})
+                .expect("Content-Type", /json/)
+                .expect(400)
+                .end(done);
+        });
     });
 });

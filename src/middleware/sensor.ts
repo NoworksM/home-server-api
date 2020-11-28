@@ -9,7 +9,7 @@ async function sensorMiddleware(ctx: Context, next: Next): Promise<void> {
         return;
     }
 
-    if (!/^\/sensor\/?/.test(ctx.request.path) && !/^\/auth\/?/.test(ctx.request.path)) {
+    if (/^\/sensor\/?/.test(ctx.request.path) || (/^\/readings\/?$/.test(ctx.request.path) && ctx.request.method === "POST")) {
         const token: ITokenPayload | undefined = ctx.state.user;
 
         if (!token || !token.sensorId) {
