@@ -1,6 +1,6 @@
 export default {
     "type": "better-sqlite3",
-    "database": "./mydb.sqlite3",
+    "database": "./mydb.test.sqlite3",
     "synchronize": true,
     "logging": false,
     "entities": [
