@@ -36,6 +36,7 @@ router.post('/', async (ctx: IAppContext) => {
     const result = await bcrypt.compare(vm.password, user.passwordHash);
 
     if (!result) {
+        ctx.status = 400;
         ctx.body = new ErrorResponseViewModel('Credentials did not match');
         return;
     }
@@ -59,7 +60,7 @@ router.post("/sensor", async (ctx: IAppContext) => {
 
     if (!sensor) {
         ctx.response.status = 400;
-        ctx.body = new ErrorResponseViewModel("Credentials did not match");
+        ctx.body = new ErrorResponseViewModel("Sensor credentials did not match");
         return;
     }
 
@@ -67,7 +68,7 @@ router.post("/sensor", async (ctx: IAppContext) => {
 
     if (!result) {
         ctx.response.status = 400;
-        ctx.body = new ErrorResponseViewModel("Credentials did not match");
+        ctx.body = new ErrorResponseViewModel("Sensor credentials did not match");
         return;
     }
 
