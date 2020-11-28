@@ -3,6 +3,7 @@ import jwt from 'koa-jwt';
 import {createConnection} from "typeorm";
 import authRouter from './routes/auth';
 import userRouter from './routes/users';
+import readingsRouter from "./routes/readings";
 import bodyParser from "koa-bodyparser";
 import convert from "koa-convert";
 import cors from "koa-cors";
@@ -96,6 +97,8 @@ function initialize(ormConfig?: any): Promise<Server> {
             _use(authRouter.allowedMethods());
             _use(userRouter.routes());
             _use(userRouter.allowedMethods());
+            _use(readingsRouter.routes());
+            _use(readingsRouter.allowedMethods());
 
             _use(async (ctx) => {
                 ctx.response.status = 404;

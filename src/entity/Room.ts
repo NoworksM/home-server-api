@@ -12,7 +12,7 @@ class Room {
     @Column()
     name: string;
 
-    @ManyToOne(() => SensorLocation, sensorLocation => sensorLocation.room)
+    @OneToMany(() => SensorLocation, sensorLocation => sensorLocation.room, {onDelete: "CASCADE"})
     sensorLocations: SensorLocation[];
 
     @Column()

@@ -63,7 +63,7 @@ class SiteMemoryCache implements ISiteCache {
     }
 
     async refreshSensor(id: string): Promise<Sensor | null> {
-        const sensor = await getRepository(Sensor).findOne({id});
+        const sensor = await getRepository(Sensor).findOne({id}, {relations: ["locations", "locations.room"]});
 
         this.setSensor(id, sensor);
 

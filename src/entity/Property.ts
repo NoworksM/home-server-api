@@ -13,7 +13,7 @@ class Property {
     @OneToMany(() => Room, room => room.property, {cascade: true})
     rooms: Room[];
 
-    @OneToMany(() => UserProperty, userProperty => userProperty.property)
+    @OneToMany(() => UserProperty, userProperty => userProperty.property, {onDelete: "CASCADE"})
     userProperties: UserProperty[];
 }
 
