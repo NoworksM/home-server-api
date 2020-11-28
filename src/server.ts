@@ -89,8 +89,8 @@ function initialize(ormConfig?: any): Promise<Server> {
 
             _use(jwt({secret: config.security.jwtSecret, passthrough: true}).unless({path: [/^\/auth\/?/]}));
 
-            _use(userMiddleware);
-            _use(sensorMiddleware);
+            _use(userMiddleware.except(/\/auth\/?/, {path: /\/readings\/?$/, method: "POST"}));
+            _use(sensorMiddleware.only({path: /\/readings\/?$/, method: "POST"}));
 
             _use(authRouter.routes());
             _use(authRouter.allowedMethods());
@@ -98,8 +98,7 @@ function initialize(ormConfig?: any): Promise<Server> {
             _use(userRouter.allowedMethods());
 
             _use(async (ctx) => {
-                ctx.status = 404;
-                ctx.body = null;
+                ctx.response.status = 404;
             });
 
             await seed.roles(...config.seed.roles);

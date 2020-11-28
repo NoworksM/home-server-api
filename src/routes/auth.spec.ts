@@ -156,10 +156,10 @@ describe("/readings", () => {
             request(app)
                 .post("/readings")
                 .set("Accept", "application.json")
-                .set("Authorization", `Bearer: ${userToken}`)
+                .set("Authorization", `Bearer ${userToken}`)
                 .send({type: "Temperature", value: 73.2})
-                .expect("Content-Type", /json/)
                 .expect(401)
+                .expect("Content-Type", /json/)
                 .end(done);
         });
 
@@ -167,10 +167,10 @@ describe("/readings", () => {
             request(app)
                 .post("/readings")
                 .set("Accept", "application.json")
-                .set("Authorization", `Bearer: ${sensorToken}`)
+                .set("Authorization", `Bearer ${sensorToken}`)
                 .send({type: "Temperature", value: 73.2})
-                .expect("Content-Type", /json/)
                 .expect(200)
+                .expect("Content-Type", /json/)
                 .end(done);
         });
 
@@ -178,10 +178,10 @@ describe("/readings", () => {
             request(app)
                 .post("/readings")
                 .set("Accept", "application.json")
-                .set("Authorization", `Bearer: ${sensorToken}`)
+                .set("Authorization", `Bearer ${sensorToken}`)
                 .send({type: "Invalid Type that isn't in the database", value: 73.2})
-                .expect("Content-Type", /json/)
                 .expect(400)
+                .expect("Content-Type", /json/)
                 .end(done);
         });
     });
