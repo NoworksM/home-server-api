@@ -15,6 +15,7 @@ import SensorLocation from "../entity/SensorLocation";
 import moment from "moment";
 import Reading from "../entity/Reading";
 import fs from "fs";
+import * as uuid from "uuid";
 
 let app: Server;
 let testUser = new User();
@@ -187,7 +188,7 @@ describe("/auth", () => {
         it("should reject non-existent users", (done) => {
             request(app)
                 .post("/auth/sensor")
-                .send({sensorId: "sadfkjfdsalkbhjnadsfjklh", secret: "sfadgjkbdsafjhkgjhlkasfd"})
+                .send({sensorId: uuid.v4(), secret: "sfadgjkbdsafjhkgjhlkasfd"})
                 .expect(400)
                 .end(done);
         });
@@ -259,7 +260,18 @@ describe("/readings", () => {
                 .set("Content-Type", "application/json")
                 .set("Accept", "application/json")
                 .set("Authorization", `Bearer ${unassignedSensorToken}`)
-                .send({type: "Invalid Type that isn't in the database", value: 73.2})
+                .send({type: testReadingType.value, value: 73.2})
+                .expect(400)
+                .expect("Content-Type", /json/)
+                .end(done);
+        });
+
+        it("should reject incorrect data", (done) => {
+            request(app)
+                .post("/readings")
+                .set("Accept", "application.json")
+                .set("Authorization", `Bearer ${sensorToken}`)
+                .send({type: testReadingType.value, floatValue: 73.2})
                 .expect(400)
                 .expect("Content-Type", /json/)
                 .end(done);
