@@ -9,6 +9,9 @@ const config = {
     security: {
         jwtSecret: "TestSecret, please change",
         hashRounds: 11
+    },
+    seed: {
+        roles: ["Admin"]
     }
 };
 

@@ -16,11 +16,18 @@ import IAppContext from "./IAppContext";
 import IAppState from "./IAppState";
 import loggerMiddleware from "./middleware/logging";
 import {Server} from "http";
+import * as seed from "./seed";
+
+let server: Server | null = null;
 
 function initialize(ormConfig?: any): Promise<Server> {
     return new Promise((resolve) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // noinspection JSUnusedLocalSymbols
+        if (server) {
+            resolve(server);
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // noinspection JSUnusedLocalSymbols
         createConnection(ormConfig).then(async conn => {
             const app: Koa<IAppState, IAppContext> = new Koa();
 
@@ -95,7 +102,11 @@ function initialize(ormConfig?: any): Promise<Server> {
                 ctx.body = null;
             });
 
-            resolve(app.listen(config.server.port));
+            await seed.roles(...config.seed.roles);
+
+            server = app.listen(config.server.port);
+
+            resolve(server);
         });
     });
 }
