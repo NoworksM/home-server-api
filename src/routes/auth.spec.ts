@@ -46,6 +46,8 @@ afterAll(async () => {
     const sensorRepo = await getRepository(Sensor);
 
     await sensorRepo.delete({name: testSensor.name});
+
+    app.close();
 })
 
 describe("login should generate appropriate responses", () => {
