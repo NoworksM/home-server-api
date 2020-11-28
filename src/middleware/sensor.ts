@@ -9,12 +9,12 @@ async function sensorMiddleware(ctx: Context, next: Next): Promise<void> {
         return;
     }
 
-    if (!/^\/sensor\/?/.test(ctx.request.path)) {
+    if (!/^\/sensor\/?/.test(ctx.request.path) && !/^\/auth\/?/.test(ctx.request.path)) {
         const token: ITokenPayload | undefined = ctx.state.user;
 
         if (!token || !token.sensorId) {
             ctx.status = 401;
-            ctx.body = new ErrorResponseViewModel("Sensor not not authorized");
+            ctx.body = new ErrorResponseViewModel("Sensor not authorized");
             return;
         }
 
@@ -29,6 +29,8 @@ async function sensorMiddleware(ctx: Context, next: Next): Promise<void> {
             ctx.response.status = 401;
             ctx.state.sensor = null;
         }
+    } else {
+        await next();
     }
 }
 

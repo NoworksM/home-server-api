@@ -1,4 +1,7 @@
+import EnvironmentType from "./EnvironmentType";
+
 const config = {
+    environment: EnvironmentType.Development,
     server: {
         port: 8081,
         clientAddress: "http://localhost:8080"

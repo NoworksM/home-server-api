@@ -29,6 +29,8 @@ async function userMiddleware(ctx: Context, next: Next): Promise<void> {
             ctx.status = 401;
             ctx.body = new ErrorResponseViewModel("User not signed in");
         }
+    } else {
+        await next();
     }
 }
 

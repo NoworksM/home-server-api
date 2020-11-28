@@ -9,13 +9,15 @@ import CreateUserViewModel from "../models/auth/CreateUserViewModel";
 import omit from "lodash/omit";
 import role from "../middleware/role";
 import config from "../config";
+import IAppState from "../IAppState";
+import IAppContext from "../IAppContext";
 
 
-const router = new Router({prefix: '/users'});
+const router = new Router<IAppState, IAppContext>({prefix: '/users'});
 
 router.use(["/create"], role("admin"));
 
-router.post('/create', async (ctx) => {
+router.post('/create', async (ctx: IAppContext) => {
     const vm = new CreateUserViewModel();
     assign(vm, ctx.request.body);
 
@@ -51,9 +53,9 @@ router.post('/create', async (ctx) => {
 });
 
 router.get("/me", async (ctx) => {
-    const user: User = ctx.state.user;
+    const user = ctx.state.user;
 
-    if (user === null) {
+    if (!user) {
         ctx.status = 404;
         ctx.body = new ErrorResponseViewModel("Not found");
         return;

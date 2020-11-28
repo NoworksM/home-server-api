@@ -1,4 +1,4 @@
-import Koa, {ExtendableContext, Middleware, Next} from 'koa';
+import Koa, {Middleware, Next} from 'koa';
 import jwt from 'koa-jwt';
 import {createConnection} from "typeorm";
 import authRouter from './routes/auth';
@@ -9,18 +9,62 @@ import cors from "koa-cors";
 import userMiddleware from "./middleware/user";
 import config from "./config";
 import sensorMiddleware from "./middleware/sensor";
+import * as winston from "winston";
+import {LoggerOptions} from "winston";
+import EnvironmentType from "./EnvironmentType";
+import IAppContext from "./IAppContext";
+import IAppState from "./IAppState";
+import loggerMiddleware from "./middleware/logging";
+
+let app: Koa<IAppState, IAppContext>;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // noinspection JSUnusedLocalSymbols
 createConnection().then(async conn => {
-    const app = new Koa();
+    app = new Koa();
 
-    const _use = (fn: Middleware) => app.use(convert(fn));
+    const _use = (fn: Middleware<IAppState, IAppContext>) => {
+        app.use(convert(fn));
+    };
 
-    _use(cors({origin: config.server.clientAddress}));
+    const loggerOptions: LoggerOptions = {
+        format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.label({label: "Request"}),
+            winston.format.printf(({level, message, label, timestamp}) => `[${timestamp}][${label}][${level}] ${message}`)
+        )
+    };
+    loggerOptions.transports = [];
+
+    // noinspection JSUnreachableSwitchBranches
+    switch (config.environment) {
+        case EnvironmentType.Development:
+            loggerOptions.level = "debug";
+            loggerOptions.transports.push(new winston.transports.Console());
+            break;
+        case EnvironmentType.Staging:
+            loggerOptions.level = "debug";
+            loggerOptions.transports.push(new winston.transports.File({filename: "staging.log"}))
+            break;
+        case EnvironmentType.Production:
+            loggerOptions.level = "warn";
+            loggerOptions.transports.push(new winston.transports.File({filename: "production.log"}));
+            break;
+    }
+
+    const logger = winston.createLogger(loggerOptions);
+
+    _use(async (ctx: IAppContext, next: Next) => {
+        ctx.logger = logger;
+        await next();
+    });
+
+    _use(loggerMiddleware);
+
+    _use(cors({origin: config.environment === EnvironmentType.Development ? "*" : config.server.clientAddress}));
     _use(bodyParser());
 
-    _use(async (ctx: ExtendableContext, next: Next) => {
+    _use(async (ctx: IAppContext, next: Next) => {
         try {
             await next();
         } catch (err) {
@@ -44,6 +88,11 @@ createConnection().then(async conn => {
     _use(authRouter.allowedMethods());
     _use(userRouter.routes());
     _use(userRouter.allowedMethods());
+
+    _use(async (ctx) => {
+        ctx.status = 404;
+        ctx.body = null;
+    });
 
     app.listen(config.server.port);
 });

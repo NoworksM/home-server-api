@@ -1,5 +1,4 @@
 import Router from 'koa-router';
-import {ExtendableContext} from "koa";
 import LoginViewModel from "../models/auth/LoginViewModel";
 import SensorAuthViewModel from "../models/auth/SensorAuthViewModel";
 import {getRepository} from "typeorm";
@@ -10,14 +9,17 @@ import jwt from 'jsonwebtoken';
 import config from "../config";
 import validateViewModel from "../models/validateViewModel";
 import Sensor from "../entity/Sensor";
+import IAppContext from "../IAppContext";
+import IAppState from "../IAppState";
 
 
-const router = new Router({prefix: '/auth'});
+const router = new Router<IAppState, IAppContext>({prefix: '/auth'});
 
-router.post('/', async (ctx: ExtendableContext) => {
+router.post('/', async (ctx: IAppContext) => {
     const vm = await validateViewModel(ctx.request.body, LoginViewModel);
 
     if (vm instanceof ErrorResponseViewModel) {
+        ctx.status = 400;
         ctx.body = vm;
         return;
     }
@@ -43,10 +45,11 @@ router.post('/', async (ctx: ExtendableContext) => {
     ctx.body = {token};
 });
 
-router.post("/sensor", async (ctx: ExtendableContext) => {
+router.post("/sensor", async (ctx: IAppContext) => {
     const vm = await validateViewModel(ctx.request.body, SensorAuthViewModel);
 
     if (vm instanceof ErrorResponseViewModel) {
+        ctx.status = 400;
         ctx.body = vm;
         return;
     }
