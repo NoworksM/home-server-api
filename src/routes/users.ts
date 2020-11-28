@@ -1,6 +1,4 @@
 import Router from 'koa-router';
-import assign from 'lodash/assign';
-import {validate} from "class-validator";
 import {getRepository} from "typeorm";
 import {User} from "../entity/User";
 import ErrorResponseViewModel from "../models/ErrorResponseViewModel";
@@ -11,20 +9,20 @@ import role from "../middleware/role";
 import config from "../config";
 import IAppState from "../IAppState";
 import IAppContext from "../IAppContext";
+import Roles from "../models/Roles";
+import validateViewModel from "../models/validateViewModel";
 
 
 const router = new Router<IAppState, IAppContext>({prefix: '/users'});
 
-router.use(["/create"], role("admin"));
+router.use(["/create"], role(Roles.Admin));
 
 router.post('/create', async (ctx: IAppContext) => {
-    const vm = new CreateUserViewModel();
-    assign(vm, ctx.request.body);
+    const vm = await validateViewModel(ctx.request.body, CreateUserViewModel);
 
-    const errors = await validate(vm);
-
-    if (errors.length > 0) {
-        ctx.body = new ErrorResponseViewModel('Invalid data', errors);
+    if (vm instanceof ErrorResponseViewModel) {
+        ctx.status = 400;
+        ctx.body = vm;
         return;
     }
 
@@ -33,6 +31,7 @@ router.post('/create', async (ctx: IAppContext) => {
     const existing = await userRepo.findOne({email: vm.email});
 
     if (existing) {
+        ctx.status = 400;
         ctx.body = new ErrorResponseViewModel('User already exists');
         return;
     }
@@ -54,12 +53,6 @@ router.post('/create', async (ctx: IAppContext) => {
 
 router.get("/me", async (ctx) => {
     const user = ctx.state.user;
-
-    if (!user) {
-        ctx.status = 404;
-        ctx.body = new ErrorResponseViewModel("Not found");
-        return;
-    }
 
     ctx.body = {
         user: omit(user, [
