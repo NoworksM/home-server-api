@@ -1,6 +1,6 @@
 import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import Room from "./Room";
-import UserProperty from "./UserProperty";
+import Room, {RoomProps} from "./Room";
+import UserProperty, {UserPropertyProps} from "./UserProperty";
 
 @Entity()
 class Property {
@@ -16,5 +16,13 @@ class Property {
     @OneToMany(() => UserProperty, userProperty => userProperty.property, {onDelete: "CASCADE"})
     userProperties: UserProperty[];
 }
+
+interface PropertyProps {
+    name: string;
+    rooms: RoomProps[];
+    users: UserPropertyProps[];
+}
+
+export {PropertyProps};
 
 export default Property;

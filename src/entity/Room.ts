@@ -2,6 +2,7 @@ import {Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn} fro
 import Property from "./Property";
 import Reading from "./Reading";
 import SensorLocation from "./SensorLocation";
+import {SensorProps} from "./Sensor";
 
 @Entity()
 @Index(["name", "propertyId"], {unique: true})
@@ -24,5 +25,12 @@ class Room {
     @OneToMany(() => Reading, reading => reading.room)
     readings: Reading[];
 }
+
+interface RoomProps {
+    name: string;
+    sensors: SensorProps[];
+}
+
+export {RoomProps};
 
 export default Room;

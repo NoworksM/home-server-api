@@ -70,7 +70,7 @@ function initialize(ormConfig?: any): Promise<Server> {
 
             _use(loggerMiddleware);
 
-            _use(cors({origin: config.environment === EnvironmentType.Development ? "*" : config.server.clientAddress}));
+            _use(cors({origin: config.server.clientAddress}));
             _use(bodyParser());
 
             _use(async (ctx: IAppContext, next: Next) => {
@@ -105,6 +105,9 @@ function initialize(ormConfig?: any): Promise<Server> {
             });
 
             await seed.roles(...config.seed.roles);
+            await seed.readingTypes(...config.seed.readingTypes);
+            await seed.users(...config.seed.users);
+            await seed.properties(...config.seed.properties);
 
             server = app.listen(config.server.port);
 

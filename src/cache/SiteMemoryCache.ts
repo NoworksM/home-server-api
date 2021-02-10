@@ -39,7 +39,7 @@ class SiteMemoryCache implements ISiteCache {
     }
 
     async refreshUser(id: string): Promise<User|null> {
-        const user = await getRepository(User).findOne({id}, {relations: ["roles"]});
+        const user = await getRepository(User).findOne({id}, {relations: ["roles", "userProperties"]});
 
         this.setUser(id, user);
 

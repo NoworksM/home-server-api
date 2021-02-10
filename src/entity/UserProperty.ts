@@ -25,4 +25,11 @@ class UserProperty {
     role: Role;
 }
 
+interface UserPropertyProps {
+    email: string;
+    role: string;
+}
+
+export {UserProperty, UserPropertyProps};
+
 export default UserProperty;

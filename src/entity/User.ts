@@ -1,7 +1,9 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, ManyToMany, JoinTable, ManyToOne} from 'typeorm';
+import {Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
 import {IsEmail, Length} from "class-validator";
 import {Role} from "./Role";
 import UserProperty from "./UserProperty";
+import * as bcrypt from "../util/bcrypt";
+import config from "../config";
 
 @Entity()
 export class User {
@@ -28,6 +30,18 @@ export class User {
     @JoinTable()
     roles: Role[];
 
-    @ManyToOne(() => UserProperty, userProperty => userProperty.user)
+    @OneToMany(() => UserProperty, userProperty => userProperty.user)
     userProperties: UserProperty[];
+
+    async updatePassword(password: string) {
+        this.passwordHash = await bcrypt.hash(password, config.security.hashRounds);
+    }
+}
+
+export interface UserProps {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    roles: string[];
 }

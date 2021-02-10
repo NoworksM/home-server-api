@@ -11,8 +11,80 @@ const config = {
         hashRounds: 11
     },
     seed: {
-        roles: ["Admin"],
-        readingTypes: ["Temperature", "Humidity"]
+        roles: ["Admin", "Owner"],
+        readingTypes: ["Temperature", "Humidity"],
+        users: [
+            {
+                email: "testuser@fakedomain.empty",
+                firstName: "Test",
+                lastName: "User",
+                password: "TestPassword",
+                roles: []
+            }
+        ],
+        properties: [
+            {
+                name: "Test Property 1",
+                users: [],
+                rooms: [
+                    {
+                        name: "Test Room 1",
+                        sensors: [
+                            {
+                                name: "Test Sensor 1-1",
+                                secret: "TestSecret"
+                            },
+                            {
+                                name: "Test Sensor 1-2",
+                                secret: "TestSecret"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Test Room 2",
+                        sensors: [
+                            {
+                                name: "Test Sensor 2-1",
+                                secret: "TestSecret"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Test Property 2",
+                users: [
+                    {
+                        email: "testuser@fakedomain.empty",
+                        role: "Owner"
+                    }
+                ],
+                rooms: [
+                    {
+                        name: "Test Room 1",
+                        sensors: [
+                            {
+                                name: "Test Sensor 1-1",
+                                secret: "TestSecret"
+                            },
+                            {
+                                name: "Test Sensor 1-2",
+                                secret: "TestSecret"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Test Room 2",
+                        sensors: [
+                            {
+                                name: "Test Sensor 2-1",
+                                secret: "TestSecret"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
     }
 };
 
