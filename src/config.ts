@@ -4,14 +4,15 @@ const config = {
     environment: EnvironmentType.Development,
     server: {
         port: 8081,
-        clientAddress: "http://localhost:8080"
+        clientAddress: "http://localhost:3000"
     },
     security: {
         jwtSecret: "TestSecret, please change",
         hashRounds: 11
     },
     seed: {
-        roles: ["Admin"]
+        roles: ["Admin"],
+        readingTypes: ["Temperature", "Humidity"]
     }
 };
 

@@ -10,7 +10,8 @@
     "esModuleInterop": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.spec.ts"
   ],
   "include": ["src/**/*.ts", "../nfinances.core/src/**/*.ts"]
 }

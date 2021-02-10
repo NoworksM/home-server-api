@@ -1,3 +1,3 @@
 import initialize from "./server";
 
-await initialize();
+initialize().then((server) => {});
