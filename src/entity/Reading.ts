@@ -4,7 +4,7 @@ import Room from "./Room";
 import ReadingType from "./ReadingType";
 
 @Entity()
-@Index(["roomId", "readingTypeId", "recordedAt"])
+@Index(["roomId", "readingTypeId", "sensorId", "recordedAt"], {unique: true})
 class Reading {
     @PrimaryGeneratedColumn("uuid")
     id: string;
@@ -24,10 +24,13 @@ class Reading {
     @ManyToOne(() => Room, room => room.readings)
     room: Room;
 
+    @Column()
+    sensorId: string;
+
     @ManyToOne(() => Sensor, sensor => sensor.readings)
     sensor: Sensor;
 
-    @Column()
+    @Column({type: "float"})
     value: number;
 }
 

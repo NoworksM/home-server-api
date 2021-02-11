@@ -91,6 +91,60 @@ const config = {
                     }
                 ]
             }
+        ],
+        readings: [
+            {
+                start: "2021-02-01",
+                end: "2021-03-01",
+                readingType: "Temperature",
+                property: "Test Property 1",
+                room: "Test Room 1",
+                sensor: "Test Sensor 1-1",
+                frequencyInSeconds: 60,
+                dataCenter: 70,
+                oscilations: 20,
+                amplitude: 5,
+                deviation: 0.75
+            },
+            {
+                start: "2021-02-01",
+                end: "2021-03-01",
+                readingType: "Humidity",
+                property: "Test Property 1",
+                room: "Test Room 1",
+                sensor: "Test Sensor 1-1",
+                frequencyInSeconds: 60,
+                dataCenter: 0.5,
+                oscilations: 20,
+                amplitude: 0.05,
+                deviation: 0.0025
+            },
+            {
+                start: "2021-02-01",
+                end: "2021-03-01",
+                readingType: "Temperature",
+                property: "Test Property 1",
+                room: "Test Room 1",
+                sensor: "Test Sensor 1-2",
+                frequencyInSeconds: 60,
+                dataCenter: 70,
+                oscilations: 20,
+                amplitude: 5,
+                deviation: 0.75
+            },
+            {
+                start: "2021-02-01",
+                end: "2021-03-01",
+                readingType: "Humidity",
+                property: "Test Property 1",
+                room: "Test Room 1",
+                sensor: "Test Sensor 1-2",
+                frequencyInSeconds: 60,
+                dataCenter: 0.5,
+                oscilations: 20,
+                amplitude: 0.05,
+                deviation: 0.0075
+            }
         ]
     }
 };

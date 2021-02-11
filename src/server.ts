@@ -111,6 +111,7 @@ function initialize(ormConfig?: any): Promise<Server> {
             await seed.readingTypes(...config.seed.readingTypes);
             await seed.users(...config.seed.users);
             await seed.properties(...config.seed.properties);
+            await seed.readings(...config.seed.readings);
 
             server = app.listen(config.server.port);
 
