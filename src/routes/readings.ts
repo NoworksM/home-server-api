@@ -10,6 +10,7 @@ import IAppState from "../IAppState";
 import moment from "moment";
 import omit from "lodash/omit";
 import find from "lodash/find";
+import LatestReading from "../entity/LatestReading";
 
 const router = new Router<IAppState, IAppContext>({prefix: "/readings"});
 
@@ -24,7 +25,9 @@ router.post("/", async (ctx: IAppContext) => {
 
     const readingsTypeRepo = getRepository(ReadingType);
 
-    if (await readingsTypeRepo.count({value: vm.type}) === 0) {
+    const readingType = await readingsTypeRepo.findOne({value: vm.type});
+
+    if (!readingType) {
         ctx.status = 400;
         ctx.body = new ErrorResponseViewModel(`Reading type ${vm.type} does not exist`);
         return;
@@ -41,12 +44,27 @@ router.post("/", async (ctx: IAppContext) => {
     }
 
     const readingsRepo = getRepository(Reading);
+    const latestReadingRepo = getRepository(LatestReading);
 
     let reading = new Reading();
     reading.recordedAt = now.toDate();
     reading.room = currentSensorLocation.room;
+    reading.readingType = readingType;
+    reading.value = vm.value;
 
     reading = await readingsRepo.save(reading);
+
+    let latestReading = await latestReadingRepo.findOne({room: currentSensorLocation.room, readingType});
+
+    if (!latestReading || latestReading.recordedAt < now.toDate()) {
+        latestReading = new LatestReading();
+        latestReading.recordedAt = now.toDate();
+        latestReading.room = currentSensorLocation.room;
+        latestReading.readingType = readingType;
+        latestReading.value = vm.value;
+
+        await latestReadingRepo.save(latestReading);
+    }
 
     ctx.body = omit(reading, ["sensor", "room"]);
 });

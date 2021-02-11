@@ -4,6 +4,7 @@ import Room from "./Room";
 import ReadingType from "./ReadingType";
 
 @Entity()
+@Index(["roomId", "readingTypeId"], {unique: true})
 @Index(["roomId", "readingTypeId", "recordedAt"])
 class Reading {
     @PrimaryGeneratedColumn("uuid")

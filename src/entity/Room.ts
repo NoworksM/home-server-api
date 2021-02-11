@@ -3,6 +3,7 @@ import Property from "./Property";
 import Reading from "./Reading";
 import SensorLocation from "./SensorLocation";
 import {SensorProps} from "./Sensor";
+import LatestReading from "./LatestReading";
 
 @Entity()
 @Index(["name", "propertyId"], {unique: true})
@@ -24,6 +25,9 @@ class Room {
 
     @OneToMany(() => Reading, reading => reading.room)
     readings: Reading[];
+
+    @OneToMany(() => LatestReading, reading => reading.room)
+    latestReadings: LatestReading[];
 }
 
 interface RoomProps {

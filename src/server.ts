@@ -4,6 +4,7 @@ import {createConnection} from "typeorm";
 import authRouter from './routes/auth';
 import userRouter from './routes/users';
 import readingsRouter from "./routes/readings";
+import propertiesRouter from "./routes/properties";
 import bodyParser from "koa-bodyparser";
 import convert from "koa-convert";
 import cors from "koa-cors";
@@ -99,6 +100,8 @@ function initialize(ormConfig?: any): Promise<Server> {
             _use(userRouter.allowedMethods());
             _use(readingsRouter.routes());
             _use(readingsRouter.allowedMethods());
+            _use(propertiesRouter.routes());
+            _use(propertiesRouter.allowedMethods());
 
             _use(async (ctx) => {
                 ctx.response.status = 404;

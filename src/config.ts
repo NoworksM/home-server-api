@@ -15,6 +15,13 @@ const config = {
         readingTypes: ["Temperature", "Humidity"],
         users: [
             {
+                email: "admin@fakedomain.empty",
+                firstName: "Admin",
+                lastName: "User",
+                password: "password",
+                roles: ["Admin"]
+            },
+            {
                 email: "testuser@fakedomain.empty",
                 firstName: "Test",
                 lastName: "User",

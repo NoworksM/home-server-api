@@ -1,6 +1,7 @@
 import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import Room, {RoomProps} from "./Room";
 import UserProperty, {UserPropertyProps} from "./UserProperty";
+import Sensor from "./Sensor";
 
 @Entity()
 class Property {
@@ -15,6 +16,8 @@ class Property {
 
     @OneToMany(() => UserProperty, userProperty => userProperty.property, {onDelete: "CASCADE"})
     userProperties: UserProperty[];
+
+    sensors: Sensor[];
 }
 
 interface PropertyProps {
